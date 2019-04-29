@@ -1,7 +1,6 @@
-name = "pool"
+name = "queuepool"
 
-def foo():
-   print(name)
+from queuepool.queuepool import Resource, Pool
 
 if __name__ == '__main__':
-   foo()
+   pass

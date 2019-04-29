@@ -1,2 +1,2 @@
-# pool
+# A smart resource pool
 

@@ -44,14 +44,16 @@ class Resource:
       self._lastOpened = None
       self._lastUsed = None
       self._usageCount = None
-      
-   def _open(self):
-      self._lastOpened = datetime.now()
-      self._usageCount = 0
+   def open(self):
       self._isOpen = True
-
-   def _close(self):
+      self._lastOpened = datetime.now()
+      self._lastUsed = None
+      self._usageCount = 0
+   def close(self):
       self._isOpen = False
+      self._lastOpened = None
+      self._lastUsed = None
+      self._usageCount = None
 
 
 class Pool:
@@ -62,11 +64,11 @@ class Pool:
    After this initialization, the clients that use the pool must be 'good citizens', i.e. 'take' must precede corresponding 'put', and there
    must be exactly one 'put' per each 'take', and they should put back resources in consistent state, open or closed.
    @param capacity            Pool capacity (int)
-   @param maxIdleTime         The resource will be closed if idling in open state for more than this interval (milliseconds).
-   @param maxOpenTime         The resource will be closed if it was open for more than this interval (milliseconds).
+   @param maxIdleTime         The resource will be closed if idling in open state for more than this interval (seconds).
+   @param maxOpenTime         The resource will be closed if it was open for more than this interval (seconds).
    @param maxUsageCount       The resource will be closed if it was 'taken out' more than this number of times.
    '''
-   def __init__(self, capacity, maxIdleTime, maxOpenTime, maxUsageCount) {
+   def __init__(self, capacity, maxIdleTime=300.0, maxOpenTime=300.0, maxUsageCount=1000):
         self._capacity = capacity
         self._maxIdleTime = maxIdleTime
         self._maxOpenTime = maxOpenTime
@@ -80,7 +82,7 @@ class Pool:
       '''
       r = self._pool.get()
       if not r._isOpen:
-         r._open()
+         r.open()
       r.usageCount += 1
       return r
 
@@ -95,7 +97,9 @@ class Pool:
    def _recycle(r):
       t = datetime.now()
       if r._isOpen:
-         if self._maxIdleTime is not None and t - r._lastUsed > self._maxIdleTime or
-            self._maxOpenTime is not None and t - r._lastOpened > self._maxOpenTime or
-            self._maxUsageCount is not None and r._usageCount >= self._maxUsageCount:
+         isMaxIdle = self._maxIdleTime is not None and (t - r._lastUsed).total_seconds() > self._maxIdleTime
+         isMaxOpen = self._maxOpenTime is not None and (t - r._lastOpened).total_seconds() > self._maxOpenTime
+         isMaxUsage = self._maxUsageCount is not None and r._usageCount >= self._maxUsageCount
+         if isMaxIdle or isMaxOpen or isMaxUsage:
                r.close()
+

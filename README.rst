@@ -3,7 +3,7 @@ queuepool - A multithread-safe resource pool based on synchronized queue
 
 The main problem with psycopg2.pool (https://github.com/psycopg/psycopg2/blob/master/lib/pool.py), for example, is that the pool raises an exception (instead of blocking) when there are no more connections in the pool, and you either have to match the number of connections to the number of workers, or implement retry logic. Also, it doesn't implement connection recycling (on timeout or usage count), and therefore, doesn't fully address issue with stale connections and suited less (scales worse) for large production installations.
 
-This implementation is based on synchronized queue (https://docs.python.org/3/library/queue.html), and thus multithred safe. This is a streamlined port from Java version that was implemented about 10 years ago that since then has been running in heavy production of one of our financial clients.
+This implementation is based on synchronized queue (https://docs.python.org/3/library/queue.html), and thus multithred safe. This is a streamlined port from Java version that was implemented about ten years ago and that has since then been running in heavy production evironment of one of our financial clients.
 
 This implementation features: 
 

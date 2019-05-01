@@ -18,8 +18,13 @@ setuptools.setup(
       'License :: OSI Approved :: BSD License',
       'Operating System :: OS Independent',
    ],
-   requires=[
+   python_requires = '>= 3.7',
+   install_requires=[
       'psycopg2 >= 2.8.2',
-   ]
+   ],
+   project_urls={
+        'Bug Reports': 'https://bitbucket.org/ikh/queuepool/issues',
+        'Source': 'https://bitbucket.org/ikh/queuepool/src',
+   },
 )
 

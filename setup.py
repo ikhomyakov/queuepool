@@ -11,7 +11,7 @@ setuptools.setup(
    description="A multithread-safe resource pool based on synchronized queue",
    long_description=long_description,
    long_description_content_type="text/x-rst",
-   url="https://bitbucket.org/ikh/pool",
+   url="https://bitbucket.org/ikh/queuepool",
    packages=setuptools.find_packages(),
    classifiers=[
       'Programming Language :: Python :: 3',
@@ -24,7 +24,6 @@ setuptools.setup(
    ],
    project_urls={
         'Bug Reports': 'https://bitbucket.org/ikh/queuepool/issues',
-        'Source': 'https://bitbucket.org/ikh/queuepool/src',
    },
 )
 

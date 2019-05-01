@@ -35,5 +35,3 @@ name = "queuepool"
 
 from queuepool.pool import ResourceManager, Pool
 
-if __name__ == '__main__':
-   pass

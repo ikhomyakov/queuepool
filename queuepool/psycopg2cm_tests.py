@@ -24,6 +24,11 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+#
+# queuepool/psycopg2cm_tests.py - tests for psycopg2 connections
+#
+
 import sys
 from psycopg2 import extensions as _ext
 from psycopg2 import errors as _errors

@@ -34,7 +34,6 @@
 name = "queuepool"
 
 from queuepool.pool import ResourceManager, Pool
-from queuepool.psycopg2cm import ConnectionManager
 
 if __name__ == '__main__':
    pass

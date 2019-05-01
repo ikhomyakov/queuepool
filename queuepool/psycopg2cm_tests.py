@@ -1,5 +1,3 @@
-"""A multithread-safe resource pool based on synchronized queue 
-"""
 # Copyright (c) 2002-2019 Aware Software, inc. All rights reserved.
 # Copyright (c) 2005-2019 ikh software, inc. All rights reserved.
 # 
@@ -26,80 +24,24 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-#
-# queuepool/psycopg2.py - implements ConnectionManager for psycopg2 connections
-#
 import sys
-import psycopg2 as pg
 from psycopg2 import extensions as _ext
-import queuepool.pool as pool
+from psycopg2 import errors as _errors
+import time
+import multiprocessing.pool as mpp
+import random
+import queuepool.pool as qp
+import queuepool.psycopg2cm as pgcm
 
 def logg(*args, **kwargs):
    print(*args, file=sys.stderr, **kwargs)
 
-class ConnectionManager(pool.ResourceManager):
-   """ ConnectionManager for psycopg2 connections
-   """
-   def __init__(self, name, isolation_level=None, readonly=None, deferrable=None, autocommit=None, *args, **kwargs):
-      super().__init__(name)
-      self.autocommit = autocommit
-      self.isolation_level = isolation_level
-      self.readonly = readonly
-      self.deferrable = deferrable
-      self._args = args
-      self._kwargs = kwargs
-
-   def __repr__(self):
-      return str(dict(autocommit=self.autocommit, isolation_level=self.isolation_level, readonly=self.readonly, deferrable=self.deferrable, ResourceManager=super().__repr__()))
-
-   def open(self):
-      self.resource = pg.connect(*self._args, **self._kwargs)
-      self.resource.set_session(isolation_level=self.isolation_level, readonly=self.readonly, deferrable=self.deferrable, autocommit=self.autocommit)
-      super().open()
-
-   def close(self):
-      if not self.resource.closed:
-         self.resource.close()
-      self.resource = None
-      super().close()
-
-   def repair(self):
-      if self._isOpen:
-         if not self.resource.closed:
-            s = self.resource.info.transaction_status
-            if s == _ext.TRANSACTION_STATUS_UNKNOWN:
-               # server connection lost
-               self.close()
-               #logg(f"ConnectionManager: repair: server connection lost: {self}")
-            elif s != _ext.TRANSACTION_STATUS_IDLE:
-               # connection in error or in transaction (ACTIVE, INTRANS, INERROR)
-               self.resource.rollback()
-               #logg(f"ConnectionManager: repair: still in transaction: {self}")
-            else:
-               # regular idle connection
-               pass
-         else:
-            #logg(f"ConnectionManager: repair: connection was closed outside of resource manager: {self}")
-            self.close()
-
-   def takeRepair(self):
-      super().takeRepair()
-
-   def putRepair(self):
-      self.repair()
-      super().putRepair()
-
-
-if __name__ == '__main__':
-   import multiprocessing.pool as mpp
-   import random
-   import time 
-   pool = qp.Pool(name='iridlauth', capacity=20, maxIdleTime=60, maxOpenTime=600, maxUsageCount=1000, closeOnException=True)
+def test1(host, dbname,user, password):
+   pool = qp.Pool(name=dbname, capacity=20, maxIdleTime=60, maxOpenTime=600, maxUsageCount=1000, closeOnException=True)
    for i in range(pool.capacity):
-      pool.put(ConnectionManager(name='iridlauth-'+str(i), autocommit=False, isolation_level=pg.extensions.ISOLATION_LEVEL_SERIALIZABLE, host='localhost', dbname='test', user='test', password='test'))
+      pool.put(pgcm.ConnectionManager(name=dbname+'-'+str(i), autocommit=False, isolation_level=_ext.ISOLATION_LEVEL_SERIALIZABLE, host=host, dbname=dbname, user=user, password=password))
    pool.startRecycler(5)
-  
+   
    # with context manager
    with pool.take() as conn:
       with conn.cursor() as c:
@@ -141,12 +83,12 @@ if __name__ == '__main__':
                         c.execute("update x set x=%s", (x,))
                         res.append(x)
                         done = True
-                     except pg.errors.SerializationFailure as e:
+                     except _errors.SerializationFailure as e:
                         conn.rollback()
-                        logg('pg.errors.SerializationFailure: ', name, i, x)
+                        logg('SerializationFailure: ', name, i, x)
                         pass
                      if not done:
-                        time.sleep(random.random() * 0.01)
+                        time.sleep(random.random() * 0.01) 
                   #logg(name, i, x)
             with conn.cursor() as c:
                c.execute("select * from x")

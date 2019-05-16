@@ -48,7 +48,8 @@ def test1(host, dbname,user, password):
    pool.startRecycler(5)
    
    # with context manager
-   with pool.take() as conn:
+   with pool.take() as cm:
+      conn = cm.resource
       with conn.cursor() as c:
          c.execute("select count(*) from accounts")
          rs = c.fetchall() + [conn.get_backend_pid()]
@@ -75,7 +76,8 @@ def test1(host, dbname,user, password):
    def fetch(dbpool, name):
       res = []
       for i in range(10):
-         with dbpool.take() as conn:
+         with dbpool.take() as cm:
+            conn = cm.resource
             with conn: # transaction
                with conn.cursor() as c:
                   done = False
@@ -107,5 +109,5 @@ def test1(host, dbname,user, password):
    tpool = mpp.ThreadPool(2)
    rs = tpool.starmap(fetch, [(pool, 'task-'+str(x)) for x in range(100)])
    logg(sorted(sum(rs,[])))
-   time.sleep(100)
+   #time.sleep(10)
 

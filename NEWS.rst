@@ -1,6 +1,11 @@
 Current release
 ---------------
 
+What's new in queuepool 1.2.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Added ConnectionManagerExtended to queuepool.psycopg2cm 
+
 What's new in queuepool 1.1.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

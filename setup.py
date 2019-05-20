@@ -5,7 +5,7 @@ with open("README.rst", "r") as f:
 
 setuptools.setup(
    name="queuepool",
-   version="1.1.0",
+   version="1.2.0",
    author="ikh software, inc.",
    author_email="ikh@ikhsoftware.com",
    description="A multithread-safe resource pool based on synchronized queue",

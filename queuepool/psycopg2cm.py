@@ -90,3 +90,46 @@ class ConnectionManager(pool.ResourceManager):
       self.repair()
       super().putRepair()
 
+
+class ConnectionManagerExtended(ConnectionManager):
+   def __init__(self, *args, **kwargs):
+      super().__init__(*args, **kwargs)
+
+   def now_expr(self, t=0): # t - seconds
+      return f"((extract(epoch from now())+{t})*1000)::bigint"
+
+   def query(self, query, args=None):
+      with self.resource.cursor() as c:
+         c.execute(query, args)
+         ds = c.description
+         xs = c.fetchall()
+      rs = list(map( lambda z: dict( map( lambda x,y: (x[0],y), ds, z)), xs ))
+      return rs
+
+   def querys(self, query, args=None):
+      with self.resource.cursor() as c:
+         c.execute(query, args)
+         ds = c.description
+         xs = c.fetchall()
+      return xs,ds
+
+   def query1(self, query, args=None):
+      with self.resource.cursor() as c:
+         c.execute(query, args)
+         ds = c.description
+         xs = c.fetchall()
+      rs = list(map( lambda z: dict( map( lambda x,y: (x[0],y), ds, z)), xs ))
+      return rs[0] if len(rs)==1 else None
+
+   def qexec(self, query, args=None):
+      with self.resource.cursor() as c:
+         c.execute(query, args)
+
+   def geojson(self, geomColumn, attrColumns, selectQuery, args=None, prec=5):
+      q = pgsql.SQL("with x as ("+selectQuery+") select ST_AsGeoJSON({},"+str(int(prec))+") as geometry,{} from x").format(pgsql.Identifier(geomColumn),pgsql.SQL(', ').join(map(pgsql.Identifier, attrColumns)))
+      rs = self.query(q, args)
+      fs = list(map(lambda r: dict(type="Feature", geometry=json.loads(r['geometry']), properties={k: r[k] for k in filter(lambda k: k!='geometry', r)}), rs))
+      res = dict(type="FeatureCollection", features=fs)
+      return res
+
+

@@ -1,6 +1,11 @@
 Current release
 ---------------
 
+What's new in queuepool 1.3.1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed psycopg2's geojson method
+
 What's new in queuepool 1.3.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

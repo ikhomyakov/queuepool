@@ -31,7 +31,9 @@
 # queuepool/psycopg2cm.py - implements ConnectionManager for psycopg2 connections
 #
 import sys
+import json
 import psycopg2 as pg
+from psycopg2 import sql as pgsql
 from psycopg2 import extensions as _ext
 import queuepool.pool as pool
 

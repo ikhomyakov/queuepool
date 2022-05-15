@@ -5,13 +5,13 @@ with open("README.rst", "r") as f:
 
 setuptools.setup(
    name="queuepool",
-   version="1.3.1",
+   version="1.3.2",
    author="ikh software, inc.",
    author_email="ikh@ikhsoftware.com",
    description="A multithread-safe resource pool based on synchronized queue",
    long_description=long_description,
    long_description_content_type="text/x-rst",
-   url="https://bitbucket.org/ikh/queuepool",
+   url="https://github.com/ikhomyakov/queuepool",
    packages=setuptools.find_packages(),
    classifiers=[
       'Programming Language :: Python :: 3',
@@ -23,7 +23,7 @@ setuptools.setup(
       'psycopg2 >= 2.8.2',
    ],
    project_urls={
-        'Bug Reports': 'https://bitbucket.org/ikh/queuepool/issues',
+        'Bug Reports': 'https://github.com/ikhomyakov/queuepool/issues',
    },
 )
 
